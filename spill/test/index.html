@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Tile Matrix | Minne Trening</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Memory Tile Matrix</h1>
+            <div class="stats">
+                <div class="stat">
+                    <span class="label">Nivå</span>
+                    <span id="level" class="value">1</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Liv</span>
+                    <span id="lives" class="value">3</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Forsøk</span>
+                    <span id="attempts" class="value">3</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="game-container">
+                <div id="grid-container"></div>
+                <div id="message" class="message"></div>
+            </div>
+            
+            <div id="controls" class="controls">
+                <button id="start-btn" class="btn">Start Spill</button>
+                <div id="rotation-info" class="rotation-info">
+                    <span>Rotasjon: </span>
+                    <span id="rotation-direction">-</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

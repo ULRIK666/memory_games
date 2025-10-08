@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindMatrix - Tren Hukommelsen Din</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1e1e1e;
+            --accent-color: #4fc3f7;
+            --accent-hover: #29b6f6;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9e9e9e;
+            --card-bg: #2d2d2d;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Hexagon bakgrunnseffekt */
+        .hexagon-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .hexagon {
+            position: absolute;
+            width: 100px;
+            height: 57.74px;
+            background: var(--accent-color);
+            margin: 28.87px 0;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hexagon:before,
+        .hexagon:after {
+            content: "";
+            position: absolute;
+            width: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+        }
+
+        .hexagon:before {
+            bottom: 100%;
+            border-bottom: 28.87px solid var(--accent-color);
+        }
+
+        .hexagon:after {
+            top: 100%;
+            width: 0;
+            border-top: 28.87px solid var(--accent-color);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Header og navigasjon */
+        .header {
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, #252525 100%);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--accent-color), #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Hovedinnhold */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .welcome-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Spill grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .game-card {
+            background: var(--secondary-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent-color);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(79, 195, 247, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        .game-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .game-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .game-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .game-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-coming-soon {
+            background: var(--warning);
+            color: #000;
+        }
+
+        .status-available {
+            background: var(--success);
+            color: #fff;
+        }
+
+        /* Statistikk seksjon */
+        .stats-section {
+            background: var(--secondary-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid #333;
+        }
+
+        .stats-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--secondary-bg);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid #333;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        /* Knapper */
+        .btn {
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 195, 247, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* Responsiv design */
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-container {
+                padding: 2rem 1rem;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Loading animasjon */
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .loading {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hexagon bakgrunn -->
+    <div class="hexagon-background" id="hexagon-container"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <h1 class="logo">MindMatrix</h1>
+            <p class="tagline">Tren hukommelse, mønstergjenkjenning og kognitiv evne</p>
+        </div>
+    </header>
+
+    <!-- Hovedinnhold -->
+    <main class="main-container">
+        <!-- Velkomstseksjon -->
+        <section class="welcome-section">
+            <h2 class="welcome-title">Velkommen til Hukommelsestrening</h2>
+            <p class="welcome-text">
+                Utforsk vårt utvalg av spill designet for å styrke din hukommelse, 
+                forbedre mønstergjenkjenning og trene din hjernes evne til problemløsning.
+            </p>
+            <a href="#games" class="btn">Utforsk Spill</a>
+        </section>
+
+        <!-- Spill seksjon -->
+        <section id="games">
+            <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">Våre Spill</h2>
+            <div class="games-grid">
+                <!-- Eksisterende spill -->
+                <div class="game-card" onclick="location.href='spill/minne-ruter/index.html'">
+                    <div class="game-icon">🧠</div>
+                    <h3 class="game-title">Memory Matrix</h3>
+                    <p class="game-description">Husk de opplyste rutene i et roterende rutenett. Økende vanskelighet med nye rader hvert level.</p>
+                    <span class="game-status status-available">Tilgjengelig</span>
+                </div>
+
+                <div class="game-card" onclick="location.href='spill/tog-spor/index.html'">
+                    <div class="game-icon">🚂</div>
+                    <h3 class="game-title">Train Tracks</h3>
+                    <p class="game-description">Endre sporveksler for å lede tog til riktige stasjoner. Planlegg ruter og unngå kollisjoner.</p>
+                    <span class="game-status status-available">Tilgjengelig</span>
+                </div>
+
+                <div class="game-card" onclick="location.href='spill/pinball-bomb/index.html'">
+                    <div class="game-icon">🎯</div>
+                    <h3 class="game-title">Pinball Bomb</h3>
+                    <p class="game-description">Guide en ball gjennom et rutenett med skjulte vegger og bomber. Prediker ballens bane.</p>
+                    <span class="game-status status-available">Tilgjengelig</span>
+                </div>
+
+                <!-- Kommende spill -->
+                <div class="game-card loading">
+                    <div class="game-icon">🎮</div>
+                    <h3 class="game-title">Sequence Master</h3>
+                    <p class="game-description">Gjenskap fargesekvenser som blir lengre for hvert level. Tren korttidshukommelse.</p>
+                    <span class="game-status status-coming-soon">Kommer Snart</span>
+                </div>
+
+                <div class="game-card loading">
+                    <div class="game-icon">🔍</div>
+                    <h3 class="game-title">Memory Board</h3>
+                    <p class="game-description">Husk hvilke ruter som var opplyst før skjermen blinket. Test din visuelle hukommelse.</p>
+                    <span class="game-status status-coming-soon">Kommer Snart</span>
+                </div>
+
+                <div class="game-card loading">
+                    <div class="game-icon">🔄</div>
+                    <h3 class="game-title">Flow Memory</h3>
+                    <p class="game-description">Koble sammen prikker med skjulte farger. Tren assosiasjonshukommelse og logisk tenkning.</p>
+                    <span class="game-status status-coming-soon">Kommer Snart</span>
+                </div>
+
+                <div class="game-card loading">
+                    <div class="game-icon">🎨</div>
+                    <h3 class="game-title">Color Blind</h3>
+                    <p class="game-description">Naviger med skiftende fargekoder. Tren arbeidshukommelse og kognitiv fleksibilitet.</p>
+                    <span class="game-status status-coming-soon">Kommer Snart</span>
+                </div>
+
+                <div class="game-card loading">
+                    <div class="game-icon">🌓</div>
+                    <h3 class="game-title">Shadow Direction</h3>
+                    <p class="game-description">Forutsi skyggemønstre basert på lysets posisjon. Tren romlig resonnement.</p>
+                    <span class="game-status status-coming-soon">Kommer Snart</span>
+                </div>
+
+                <div class="game-card loading">
+                    <div class="game-icon">🔧</div>
+                    <h3 class="game-title">Pipe Leak</h3>
+                    <p class="game-description">Roter rør for å lage en sammenhengende rørledning fra minne. Tren romlig hukommelse.</p>
+                    <span class="game-status status-coming-soon">Kommer Snart</span>
+                </div>
+
+                <!-- Ekstra placeholdere -->
+                <div class="game-card loading">
+                    <div class="game-icon">⚡</div>
+                    <h3 class="game-title">Speed Memory</h3>
+                    <p class="game-description">Husk og gjenskap mønstre under tidspress. Tren hastighet og nøyaktighet.</p>
+                    <span class="game-status status-coming-soon">Kommer Snart</span>
+                </div>
+
+                <div class="game-card loading">
+                    <div class="game-icon">🎲</div>
+                    <h3 class="game-title">Pattern Pro</h3>
+                    <p class="game-description">Gjenskap komplekse mønstre og sekvenser. Tren mønstergjenkjenning til neste nivå.</p>
+                    <span class="game-status status-coming-soon">Kommer Snart</span>
+                </div>
+
+                <div class="game-card loading">
+                    <div class="game-icon">🧩</div>
+                    <h3 class="game-title">Logic Links</h3>
+                    <p class="game-description">Løs logiske gåter som krever både hukommelse og resonnement. Tren helhetstenkning.</p>
+                    <span class="game-status status-coming-soon">Kommer Snart</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistikk seksjon -->
+        <section class="stats-section">
+            <h3 class="stats-title">Dine Prestasjoner</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-games">0</div>
+                    <div class="stat-label">Spill Spilt</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="high-score">0</div>
+                    <div class="stat-label">Høyeste Poengsum</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-level">0</div>
+                    <div class="stat-label">Gjennomsnittlig Nivå</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="streak">0</div>
+                    <div class="stat-label">Dagens Streak</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">MindMatrix - Tren din hjerne hver dag</p>
+            <p class="footer-text">Utviklet for å forbedre kognitive evner gjennom morsomme og utfordrende spill</p>
+        </div>
+    </footer>
+
+    <script>
+        // Lag hexagon bakgrunn
+        function createHexagonBackground() {
+            const container = document.getElementById('hexagon-container');
+            const hexCount = 15;
+            
+            for (let i = 0; i < hexCount; i++) {
+                const hexagon = document.createElement('div');
+                hexagon.className = 'hexagon';
+                
+                // Tilfeldig posisjon
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                const delay = Math.random() * 6;
+                const duration = 6 + Math.random() * 4;
+                
+                hexagon.style.left = `${left}%`;
+                hexagon.style.top = `${top}%`;
+                hexagon.style.animationDelay = `${delay}s`;
+                hexagon.style.animationDuration = `${duration}s`;
+                hexagon.style.opacity = 0.1 + Math.random() * 0.1;
+                
+                container.appendChild(hexagon);
+            }
+        }
+
+        // Simuler statistikk (i en ekte app vil dette hentes fra localStorage eller backend)
+        function initializeStats() {
+            document.getElementById('total-games').textContent = '12';
+            document.getElementById('high-score').textContent = '1,247';
+            document.getElementById('avg-level').textContent = '8.3';
+            document.getElementById('streak').textContent = '3';
+        }
+
+        // Smooth scroll for lenker
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initialiser når siden lastes
+        document.addEventListener('DOMContentLoaded', function() {
+            createHexagonBackground();
+            initializeStats();
+            
+            // Legg til hover effekt for spillkort
+            const gameCards = document.querySelectorAll('.game-card');
+            gameCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+
+        // Tilfeldig farge for hexagoner (valgfritt)
+        function getRandomColor() {
+            const colors = ['#4fc3f7', '#29b6f6', '#03a9f4', '#0288d1'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+    </script>
+</body>
+</html>
