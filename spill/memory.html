@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Tile Matrix | Minne Trening</title>
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent: #4a9cff;
+            --correct: #4caf50;
+            --incorrect: #f44336;
+            --highlight: #ffeb3b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+            background-color: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .lives {
+            display: flex;
+            gap: 5px;
+        }
+
+        .life {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--incorrect);
+        }
+
+        .life.active {
+            background-color: var(--correct);
+        }
+
+        .game-board {
+            display: grid;
+            gap: 8px;
+            margin: 20px 0;
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1 / 1;
+        }
+
+        .tile {
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tile:hover {
+            background-color: #3a3a3a;
+        }
+
+        .tile.highlighted {
+            background-color: var(--highlight);
+        }
+
+        .tile.correct {
+            background-color: var(--correct);
+        }
+
+        .tile.incorrect {
+            background-color: var(--incorrect);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #3a8cff;
+        }
+
+        button:disabled {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .instructions {
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .instructions h2 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+
+        .instructions p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .rotation-indicator {
+            margin: 15px 0;
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 500;
+            text-align: center;
+            height: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Memory Tile Matrix</h1>
+            <div class="subtitle">Trening for romlig hukommelse og mental rotasjon</div>
+        </header>
+
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">Nivå</div>
+                <div class="info-value" id="level">1</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Poeng</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Liv</div>
+                <div class="lives" id="lives">
+                    <div class="life active"></div>
+                    <div class="life active"></div>
+                    <div class="life active"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rotation-indicator" id="rotation-indicator"></div>
+
+        <div class="game-board" id="game-board"></div>
+
+        <div class="controls">
+            <button id="start-btn">Start Spill</button>
+            <button id="reset-btn" disabled>Start På Nytt</button>
+        </div>
+
+        <div class="instructions">
+            <h2>Hvordan spille</h2>
+            <p>1. Flere ruter vil lyse opp i noen sekunder - husk hvilke!</p>
+            <p>2. Brettet vil rotere 90 grader med eller mot klokken</p>
+            <p>3. Klikk på rutene som var opplyst i deres nye posisjon</p>
+            <p>4. Du har 3 forsøk per runde. Klarer du alle får du tilbake forsøkene</p>
+            <p>5. Etter hvert nivå legges det til en ny rad til brettet blir 8x8</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Game state
+            const gameState = {
+                level: 1,
+                score: 0,
+                lives: 3,
+                maxLives: 3,
+                isPlaying: false,
+                currentTiles: [],
+                highlightedTiles: [],
+                boardSize: { rows: 3, cols: 3 },
+                maxBoardSize: 8,
+                rotationDirection: null, // 'clockwise' or 'counterclockwise'
+                displayTime: 2000, // milliseconds
+                currentPhase: 'waiting' // 'waiting', 'display', 'rotation', 'input'
+            };
+
+            // DOM elements
+            const gameBoard = document.getElementById('game-board');
+            const levelDisplay = document.getElementById('level');
+            const scoreDisplay = document.getElementById('score');
+            const livesDisplay = document.getElementById('lives');
+            const startBtn = document.getElementById('start-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const rotationIndicator = document.getElementById('rotation-indicator');
+
+            // Initialize game
+            function initGame() {
+                createBoard();
+                updateUI();
+                
+                startBtn.addEventListener('click', startGame);
+                resetBtn.addEventListener('click', resetGame);
+            }
+
+            // Create the game board
+            function createBoard() {
+                gameBoard.innerHTML = '';
+                gameBoard.style.gridTemplateColumns = `repeat(${gameState.boardSize.cols}, 1fr)`;
+                gameBoard.style.gridTemplateRows = `repeat(${gameState.boardSize.rows}, 1fr)`;
+                
+                for (let i = 0; i < gameState.boardSize.rows * gameState.boardSize.cols; i++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.dataset.index = i;
+                    tile.addEventListener('click', handleTileClick);
+                    gameBoard.appendChild(tile);
+                }
+                
+                gameState.currentTiles = Array.from(gameBoard.children);
+            }
+
+            // Start the game
+            function startGame() {
+                if (gameState.isPlaying) return;
+                
+                gameState.isPlaying = true;
+                startBtn.disabled = true;
+                resetBtn.disabled = false;
+                
+                nextLevel();
+            }
+
+            // Reset the game
+            function resetGame() {
+                gameState.level = 1;
+                gameState.score = 0;
+                gameState.lives = gameState.maxLives;
+                gameState.boardSize = { rows: 3, cols: 3 };
+                gameState.isPlaying = false;
+                
+                startBtn.disabled = false;
+                resetBtn.disabled = true;
+                
+                createBoard();
+                updateUI();
+                rotationIndicator.textContent = '';
+                
+                // Reset all tiles
+                gameState.currentTiles.forEach(tile => {
+                    tile.className = 'tile';
+                });
+            }
+
+            // Proceed to next level
+            function nextLevel() {
+                gameState.level++;
+                updateUI();
+                
+                // Increase board size if not at max
+                if (gameState.boardSize.rows < gameState.maxBoardSize) {
+                    if (gameState.level % 2 === 0) {
+                        gameState.boardSize.rows = Math.min(gameState.boardSize.rows + 1, gameState.maxBoardSize);
+                    } else {
+                        gameState.boardSize.cols = Math.min(gameState.boardSize.cols + 1, gameState.maxBoardSize);
+                    }
+                }
+                
+                // Adjust display time based on level (decreases as level increases)
+                gameState.displayTime = Math.max(1000, 2000 - (gameState.level * 50));
+                
+                createBoard();
+                startRound();
+            }
+
+            // Start a new round
+            function startRound() {
+                gameState.highlightedTiles = [];
+                gameState.rotationDirection = Math.random() > 0.5 ? 'clockwise' : 'counterclockwise';
+                
+                // Determine how many tiles to highlight (increases with level)
+                const tilesToHighlight = Math.min(
+                    Math.floor(gameState.level / 2) + 2, 
+                    gameState.boardSize.rows * gameState.boardSize.cols
+                );
+                
+                // Select random tiles to highlight
+                const allIndices = Array.from({length: gameState.boardSize.rows * gameState.boardSize.cols}, (_, i) => i);
+                for (let i = 0; i < tilesToHighlight; i++) {
+                    const randomIndex = Math.floor(Math.random() * allIndices.length);
+                    gameState.highlightedTiles.push(allIndices[randomIndex]);
+                    allIndices.splice(randomIndex, 1);
+                }
+                
+                // Display highlighted tiles
+                displayTiles();
+            }
+
+            // Display the highlighted tiles
+            function displayTiles() {
+                gameState.currentPhase = 'display';
+                
+                // Highlight the selected tiles
+                gameState.highlightedTiles.forEach(index => {
+                    gameState.currentTiles[index].classList.add('highlighted');
+                });
+                
+                // After display time, hide tiles and rotate
+                setTimeout(() => {
+                    hideTiles();
+                    rotateBoard();
+                }, gameState.displayTime);
+            }
+
+            // Hide the highlighted tiles
+            function hideTiles() {
+                gameState.currentTiles.forEach(tile => {
+                    tile.classList.remove('highlighted');
+                });
+            }
+
+            // Rotate the board
+            function rotateBoard() {
+                gameState.currentPhase = 'rotation';
+                
+                // Show rotation indicator
+                rotationIndicator.textContent = `Brettet roterer ${gameState.rotationDirection === 'clockwise' ? 'med' : 'mot'} klokken`;
+                
+                // Apply rotation animation to the board
+                gameBoard.style.transition = 'transform 0.8s ease';
+                gameBoard.style.transform = `rotate(${gameState.rotationDirection === 'clockwise' ? '90' : '-90'}deg)`;
+                
+                // After rotation, allow input
+                setTimeout(() => {
+                    gameState.currentPhase = 'input';
+                    rotationIndicator.textContent = 'Klikk på rutene som var opplyst';
+                    
+                    // Calculate new positions after rotation
+                    gameState.rotatedTiles = calculateRotatedTiles();
+                }, 800);
+            }
+
+            // Calculate new tile positions after rotation
+            function calculateRotatedTiles() {
+                const rows = gameState.boardSize.rows;
+                const cols = gameState.boardSize.cols;
+                const rotatedIndices = [];
+                
+                // Create a 2D array representation of the board
+                const board2D = [];
+                for (let i = 0; i < rows; i++) {
+                    board2D.push([]);
+                    for (let j = 0; j < cols; j++) {
+                        board2D[i].push(i * cols + j);
+                    }
+                }
+                
+                // Rotate the 2D array
+                let rotated2D;
+                if (gameState.rotationDirection === 'clockwise') {
+                    rotated2D = board2D[0].map((_, index) => 
+                        board2D.map(row => row[index]).reverse()
+                    );
+                } else {
+                    rotated2D = board2D[0].map((_, index) => 
+                        board2D.map(row => row[row.length - 1 - index])
+                    );
+                }
+                
+                // Flatten the rotated 2D array back to 1D
+                for (let i = 0; i < rotated2D.length; i++) {
+                    for (let j = 0; j < rotated2D[i].length; j++) {
+                        rotatedIndices.push(rotated2D[i][j]);
+                    }
+                }
+                
+                return rotatedIndices;
+            }
+
+            // Handle tile click
+            function handleTileClick(e) {
+                if (gameState.currentPhase !== 'input' || !gameState.isPlaying) return;
+                
+                const clickedIndex = parseInt(e.target.dataset.index);
+                const originalIndex = gameState.rotatedTiles[clickedIndex];
+                
+                // Check if the clicked tile was originally highlighted
+                if (gameState.highlightedTiles.includes(originalIndex)) {
+                    // Correct selection
+                    e.target.classList.add('correct');
+                    gameState.highlightedTiles = gameState.highlightedTiles.filter(i => i !== originalIndex);
+                    
+                    // Update score
+                    gameState.score += 10;
+                    updateUI();
+                    
+                    // Check if all tiles have been found
+                    if (gameState.highlightedTiles.length === 0) {
+                        // Success - restore lives and proceed to next level
+                        gameState.lives = gameState.maxLives;
+                        updateLivesDisplay();
+                        
+                        setTimeout(() => {
+                            nextLevel();
+                        }, 1000);
+                    }
+                } else {
+                    // Incorrect selection
+                    e.target.classList.add('incorrect');
+                    gameState.lives--;
+                    updateLivesDisplay();
+                    
+                    // Check if game over
+                    if (gameState.lives <= 0) {
+                        gameOver();
+                    } else {
+                        // Reset the round after a short delay
+                        setTimeout(() => {
+                            startRound();
+                        }, 1000);
+                    }
+                }
+            }
+
+            // Game over
+            function gameOver() {
+                gameState.isPlaying = false;
+                rotationIndicator.textContent = `Game Over! Din poengsum: ${gameState.score}`;
+                
+                // Show all correct tiles
+                gameState.highlightedTiles.forEach(originalIndex => {
+                    const currentIndex = gameState.rotatedTiles.indexOf(originalIndex);
+                    if (currentIndex !== -1) {
+                        gameState.currentTiles[currentIndex].classList.add('correct');
+                    }
+                });
+                
+                startBtn.disabled = false;
+            }
+
+            // Update UI elements
+            function updateUI() {
+                levelDisplay.textContent = gameState.level;
+                scoreDisplay.textContent = gameState.score;
+                updateLivesDisplay();
+            }
+
+            // Update lives display
+            function updateLivesDisplay() {
+                const lifeElements = livesDisplay.querySelectorAll('.life');
+                lifeElements.forEach((life, index) => {
+                    if (index < gameState.lives) {
+                        life.classList.add('active');
+                    } else {
+                        life.classList.remove('active');
+                    }
+                });
+            }
+
+            // Initialize the game
+            initGame();
+        });
+    </script>
+</body>
+</html>

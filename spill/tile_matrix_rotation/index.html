@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Tile Matrix | Minne Trening</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Memory Tile Matrix</h1>
+            <div class="subtitle">Trening for romlig hukommelse og mental rotasjon</div>
+        </header>
+
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">Nivå</div>
+                <div class="info-value" id="level">1</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Poeng</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Liv</div>
+                <div class="lives" id="lives">
+                    <div class="life active"></div>
+                    <div class="life active"></div>
+                    <div class="life active"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rotation-indicator" id="rotation-indicator"></div>
+
+        <div class="game-board-container">
+            <div class="game-board" id="game-board"></div>
+        </div>
+
+        <div class="controls">
+            <button id="start-btn">Start Spill</button>
+            <button id="reset-btn" disabled>Start På Nytt</button>
+        </div>
+
+        <div class="instructions">
+            <h2>Hvordan spille</h2>
+            <p>1. Flere ruter vil lyse opp i noen sekunder - husk hvilke!</p>
+            <p>2. Brettet vil rotere 90 grader med eller mot klokken</p>
+            <p>3. Klikk på rutene som var opplyst i deres nye posisjon</p>
+            <p>4. Du har 3 forsøk per runde. Klarer du alle får du tilbake forsøkene</p>
+            <p>5. Etter hvert nivå legges det til en ny rad til brettet blir 8x8</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
